@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Observer
 import androidx.room.Room
 
 
@@ -29,11 +30,13 @@ class MainActivity : AppCompatActivity() {
             .allowMainThreadQueries()
             .build()
 
-        resultText.text = db.todoDao().getAll().toString()
+        db.todoDao().getAll().observe(this, Observer {
+            resultText.text = it.toString()
+        })
 
         findViewById<Button>(R.id.add_button).setOnClickListener {
             db.todoDao().insert(Todo(todoEdit.text.toString()))
-            resultText.text = db.todoDao().getAll().toString()
+            //resultText.text = db.todoDao().getAll().toString()
         }
 
 
