@@ -8,7 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,16 +30,16 @@ class MainActivity : AppCompatActivity() {
         val resultText = findViewById<TextView>(R.id.result_text)
         val todoEdit = findViewById<TextView>(R.id.todo_edit)
 
-        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "todo-db")
-            .allowMainThreadQueries()
-            .build()
+        val viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
-        db.todoDao().getAll().observe(this, Observer {
+        viewModel.getAll().observe(this, Observer {
             resultText.text = it.toString()
         })
 
         findViewById<Button>(R.id.add_button).setOnClickListener {
-            db.todoDao().insert(Todo(todoEdit.text.toString()))
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.insert(Todo(todoEdit.text.toString()))
+            }
             //resultText.text = db.todoDao().getAll().toString()
         }
 
